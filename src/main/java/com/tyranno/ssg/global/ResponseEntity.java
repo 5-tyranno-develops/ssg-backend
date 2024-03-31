@@ -16,8 +16,8 @@ public record ResponseEntity<T>(Boolean isSuccess, String message, int code, T r
     }
 
     // 요청 실패한 경우
-    public ResponseEntity(ResponseStatus status) {
-        this(false, status.getMessage(), status.getCode(), null);
+    public ResponseEntity(ResponseStatus status, String message) {
+        this(false, message, status.getCode(), null);
     }
 
     //요청에 실패한 경우 @Vaild annotantion error 판매자

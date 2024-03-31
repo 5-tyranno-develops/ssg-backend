@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<?> RuntimeError(RuntimeException e, HttpServletRequest request) {
         log.error("url: {}, message: {}", request.getRequestURI(), e.getMessage());
 
-        return new ResponseEntity<>(ResponseStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
