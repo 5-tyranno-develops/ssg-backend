@@ -18,13 +18,13 @@ public class Option {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
-
+    @ManyToOne
     private Size size;
-
+    @ManyToOne
     private Color color;
-
+    @ManyToOne
     private Etc etc;
-
+    @ManyToOne
     private Extra extra;
 
     @Column(nullable = false)
