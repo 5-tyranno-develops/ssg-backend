@@ -1,20 +1,21 @@
 package com.tyranno.ssg.product.application;
 
+
 import com.tyranno.ssg.global.GlobalException;
 import com.tyranno.ssg.global.ResponseStatus;
 import com.tyranno.ssg.product.domain.Discount;
 import com.tyranno.ssg.product.domain.Product;
 import com.tyranno.ssg.product.domain.ProductThum;
-import com.tyranno.ssg.product.dto.DiscountDto;
-import com.tyranno.ssg.product.dto.ProductDetailDto;
-import com.tyranno.ssg.product.dto.ProductDto;
+import com.tyranno.ssg.product.dto.*;
 import com.tyranno.ssg.product.infrastructure.DiscountRepository;
 import com.tyranno.ssg.product.infrastructure.ProductRepository;
 import com.tyranno.ssg.product.infrastructure.ProductThumRepository;
-import com.tyranno.ssg.vendor.domain.Vendor;
 import com.tyranno.ssg.vendor.domain.VendorProduct;
 import com.tyranno.ssg.vendor.dto.VendorDto;
+import com.tyranno.ssg.vendor.dto.VendorProductDto;
 import com.tyranno.ssg.vendor.infrastructure.VendorProductRepository;
+import com.tyranno.ssg.category.dto.CategoryProductIdListDto;
+import com.tyranno.ssg.category.infrastructure.CategoryRepositoryImp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class ProductServiceImp implements ProductService {
     private final ProductThumRepository productThumRepository;
     //    private final CategoryRepository categoryRepository;
     private final DiscountRepository discountRepository;
+    private final CategoryRepositoryImp categoryRepositoryImp;
 
     //    private final LikeRepository likeRepository;
 
@@ -52,22 +54,29 @@ public class ProductServiceImp implements ProductService {
                     .toList();
             // vendor 담기
             // 상품 아이디로 판매자-상품 중간테이블에서 조회
-            VendorProduct vendorProduct = vendorProductRepository.findByProductId(product.getId())
-                    .orElseThrow(() -> new GlobalException(ResponseStatus.NO_EXIST_VENDORPRODUCT));
-            List<VendorDto> vendorDtos = new ArrayList<>();
-            if (vendorProduct != null) {
-                VendorDto vendorDto = new VendorDto();
-                vendorDto.setVendorId(vendorProduct.getVendor().getId());
-                vendorDto.setVendorName(vendorProduct.getVendor().getVendorName());
-                vendorDtos.add(vendorDto);
+            Optional<VendorProduct> vendorProduct = vendorProductRepository.findByProductId(product.getId());
+            List<VendorDto> vendorDtos = vendorProduct
+                    .map(vp -> {
+                        VendorDto vendorDto = new VendorDto();
+                        vendorDto.setVendorId(vp.getVendor().getId());
+                        vendorDto.setVendorName(vp.getVendor().getVendorName());
+                        return vendorDto;
+                    })
+                    .map(Collections::singletonList)
+                    .orElse(Collections.emptyList());
+            Optional<Discount> discountOptional = discountRepository.findByProductId(product.getId());
+            int discountValue = 0;
+            if (discountOptional.isPresent()) {
+               discountValue = discountOptional.get().getDiscount();
             }
+
             // ProductDto 생성 및 값 설정
             return ProductDetailDto.builder()
                     .productName(product.getProductName())
                     .price(product.getProductPrice())
                     .productRate(product.getProductRate())
                     .detailContent(product.getDetailContent())
-//                    .discount(product.getDiscount()) //다른곳에서 오는거
+                    .discount(discountValue) //다른곳에서 오는거
                     .reviewCount(product.getReviewCount())
                     .vendor(vendorDtos) // 다른곳에서 오는거
                     .imageUrl(imageUrls) // 다른곳에서 오는거
@@ -78,115 +87,34 @@ public class ProductServiceImp implements ProductService {
         }
     }
 
-    // Discount 객체 구하기
     @Override
-    public DiscountDto findDiscountByProductId(Long id) {
-        Discount discount = discountRepository.findByProductId(id)
+    public CategoryProductIdListDto productIdList(Long largeId, Long middleId, Long smallId, Long detailId, String sortCriterion) {
+        Optional<List<Long>> productIds = Optional.ofNullable(categoryRepositoryImp.getProductIdList(largeId, middleId, smallId, detailId, sortCriterion));
+        CategoryProductIdListDto categoryProductIdListDto = new CategoryProductIdListDto();
+        productIds.ifPresent(categoryProductIdListDto::setProductIds);
+
+        return categoryProductIdListDto;
+    }
+
+    @Override
+    public ProductInformationDto getProductInformation(Long productId){ // productList에 출력할 상품내용 불러오기
+        return productRepository.findById(productId)
+                .map(ProductInformationDto::FromEntity)
+                .orElseThrow(() -> new GlobalException(ResponseStatus.NO_EXIST_PRODUCT));
+    }
+
+    @Override
+    public ProductThumDto getProductThumPriority1(Long productId){ // productList에서 상품 썸네일 불러오기
+        return productThumRepository.findByProductIdAndPriority(productId, 1)
+                .map(ProductThumDto::FromEntity)
+                .orElseThrow(() -> new GlobalException(ResponseStatus.NO_EXIST_PRODUCTTHUM));
+    }
+
+    @Override
+    public  DiscountDto getDiscount(Long productId) {
+        return discountRepository.findByProductId(productId)
+                .map(DiscountDto::FromEntity)
                 .orElseThrow(() -> new GlobalException(ResponseStatus.NO_EXIST_DISCOUNT));
-        return DiscountDto.builder()
-                .build();
     }
-
-
-    @Override
-    public List<ProductDto> getProductList(List<Long> productIds) {
-        log.info("Received productIds: {}", productIds);
-
-        List<ProductDto> productDtos = new ArrayList<>();
-
-        for (Long productId : productIds) {
-            Optional<Product> productOptional = productRepository.findById(productId);
-
-            if (productOptional.isPresent()) {
-                Product product = productOptional.get();
-                ProductDto productDto = convertToDto(product);
-
-                // 로그 기록
-                log.info("ProductID : {}", productDto.getProductId());
-
-                // VendorProduct 조회
-                VendorProduct vendorProduct = vendorProductRepository.findByProductId(product.getId())
-                        .orElseThrow(() -> new GlobalException(ResponseStatus.NO_EXIST_VENDORPRODUCT));
-                if (vendorProduct != null) {
-                    log.info("vendorProduct 검색용 ProductID {}: {}", product.getId(), vendorProduct);
-                    Vendor vendor = vendorProduct.getVendor();
-                    if (vendor != null) {
-                        productDto.setVendorName(vendor.getVendorName()); // Vendor 정보 설정
-                    }
-                } else {
-                    log.info("VendorProduct 없음");
-                }
-
-                // ProductThum 조회
-                ProductThum productThum = productThumRepository.findByProductIdAndPriority(product.getId(), 1)
-                        .orElseThrow(() -> new GlobalException(ResponseStatus.NO_EXIST_PRODUCTTHUM));
-
-                if (productThum != null) {
-                    log.info("ProductThum에 검색하는 ProductID {}: {}", product.getId(), productThum); // 1개만 들고 올거라 썸네일 1번
-                    productDto.setImageUrl(productThum.getImageUrl()); // ImageUrl 설정
-                } else {
-                    log.info("ProductThum 없음");
-                }
-
-                // Discount 조회
-                Discount discount = discountRepository.findByProductId(product.getId())
-                        .orElseThrow(() -> new GlobalException(ResponseStatus.NO_EXIST_DISCOUNT));
-                if (discount != null) {
-                    log.info("Discount 검색용 ProductID {}: {}", product.getId(), discount);
-                    productDto.setDiscount(discount.getDiscount()); // Discount 정보 설정
-                } else {
-                    log.info("Discount 없음");
-                    productDto.setDiscount(0);
-                }
-
-                productDto.setIsLiked((byte) 99); // isLiked를 무조건 99로 설정 Like테이블 안만들어서 이렇게 한거임 나중에 수정
-
-                productDtos.add(productDto);
-            }
-        }
-
-        return productDtos;
-    }
-
-    private ProductDto convertToDto(Product product) {
-        return ProductDto.builder()
-                .productId(product.getId())
-                .productName(product.getProductName())
-                .price(product.getProductPrice())
-                .productRate(product.getProductRate())
-                .build();
-    }
-
-    @Override
-    public List<ProductDto> getProductListSorted(List<ProductDto> beforeProductDtoList, String sortCriterion) {
-        // productIds를 이용하여 제품 정보 조회
-        List<ProductDto> productDtos = new ArrayList<>(beforeProductDtoList);
-
-        // 정렬 로직 추가
-        if ("1".equals(sortCriterion)) {
-            // 낮은 가격 순
-            Collections.sort(productDtos, Comparator.comparing(ProductDto::getPrice));
-            log.info("정렬방법: 낮은 가격순 ");
-        } else if ("2".equals(sortCriterion)) {
-            // 높은 가격 순
-            Collections.sort(productDtos, Comparator.comparing(ProductDto::getPrice).reversed());
-            log.info("정렬방법: 높은 가격순");
-        } else if ("3".equals(sortCriterion)) {
-            // 할인율 높은 순
-            Collections.sort(productDtos, Comparator.comparing(ProductDto::getDiscount).reversed());
-            log.info("정렬방법: 할인율 높은 순");
-        } else if ("4".equals(sortCriterion)) {
-            // 리뷰 많은 순
-            Collections.sort(productDtos, Comparator.comparing(ProductDto::getReviewCount).reversed());
-            log.info("정렬방법: 리뷰 많은 순");
-        } else {
-            Collections.sort(productDtos, Comparator.comparing(ProductDto::getProductId));
-            log.info("정렬방법: 기본(아이디 순)");
-        }
-        // 기타 필요한 정렬 조건 추가
-
-        return productDtos;
-    }
-
 
 }

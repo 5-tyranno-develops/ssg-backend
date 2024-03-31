@@ -19,16 +19,12 @@ public class Option {
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     private Size size;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     private Color color;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     private Etc etc;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     private Extra extra;
 
     @Column(nullable = false)

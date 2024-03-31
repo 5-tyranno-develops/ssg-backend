@@ -1,7 +1,10 @@
 package com.tyranno.ssg.like.infrastructure;
 
-import com.tyranno.ssg.cart.domain.Cart;
+import com.tyranno.ssg.like.domain.Like;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface LikeRepository extends JpaRepository<Cart, Long> {
+import java.util.Optional;
+
+public interface LikeRepository extends JpaRepository<Like, Long> {
+    Optional<Like> findByProductIdAndUsersId(Long productId, Long usersId);
 }

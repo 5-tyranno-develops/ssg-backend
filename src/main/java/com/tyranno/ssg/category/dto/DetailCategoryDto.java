@@ -1,15 +1,16 @@
 package com.tyranno.ssg.category.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Builder
-@Data
+@Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class DetailCategoryDto {
     private Long detailId;
     private String detailName;
+
+    @Builder
+    public DetailCategoryDto(Long detailId, String detailName) {
+        this.detailId = detailId;
+        this.detailName = detailName;
+    }
 }

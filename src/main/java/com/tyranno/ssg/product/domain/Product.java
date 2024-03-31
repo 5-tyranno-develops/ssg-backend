@@ -3,9 +3,7 @@ package com.tyranno.ssg.product.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
 @Getter
 public class Product {
@@ -27,4 +25,14 @@ public class Product {
 
     @Column(nullable = false)
     private Integer reviewCount; // 리뷰 갯수
+
+    @Builder
+    public Product(Long id, String productName, Integer productPrice, Float productRate, String detailContent, Integer reviewCount) {
+        this.id = id;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.productRate = productRate;
+        this.detailContent = detailContent;
+        this.reviewCount = reviewCount;
+    }
 }

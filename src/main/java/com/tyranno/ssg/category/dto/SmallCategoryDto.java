@@ -5,11 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Builder
-@Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class SmallCategoryDto {
     private Long smallId;
     private String smallName;
+
+    @Builder
+    public SmallCategoryDto(Long smallId, String smallName) {
+        this.smallId = smallId;
+        this.smallName = smallName;
+    }
 }

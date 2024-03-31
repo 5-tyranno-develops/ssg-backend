@@ -60,18 +60,16 @@ public enum ResponseStatus {
     NO_EXIST_MARKETING(false, 2200, "마케팅동의여부가 조회되지 않습니다."),
     NO_FORMATING(false, 2201, "마케팅동의 형식에 맞지 않습니다."),
 
-
     // Delivery
     NO_EXIST_DELIVERY(false, 3000, "존재하지 않는 배송지입니다."),
-
 
     // Option
     NO_EXIST_OPTION(false, 4000, "존재하지 않는 옵션입니다."),
     ALREADY_EXIST_OPTION(false, 4001, "이미 존재하는 옵션입니니다."),
 
-
     // Cart
     NO_EXIST_CART(false, 5000, "존재하지 않는 장바구니입니다."),
+
 //    NO_DATA(false, 6001, "존재하지 않는 정보입니다"),
 //    ALREADY_ADDED_PRODUCT(false, 6002, "이미 장바구니에 존재하는 상품입니다"),
 //    ALREADY_ADDED_WISH_PRODUCT(false, 6003, "이미 찜한 상품입니다");
@@ -84,7 +82,9 @@ public enum ResponseStatus {
 
 
     // Vendor
-    NO_EXIST_VENDORPRODUCT(false, 8000, "존재하지 않는 판매자상품입니다.");
+    NO_EXIST_VENDORPRODUCT(false, 8000, "존재하지 않는 판매자상품입니다."),
+    NO_EXIST_VENDOR(false, 8100, "존재하지 않는 판매자입니다.");
+
 
     private final boolean isSuccess;
     private final int code;

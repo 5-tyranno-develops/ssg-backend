@@ -4,10 +4,7 @@ import com.tyranno.ssg.category.domain.CategoryDetail;
 import com.tyranno.ssg.category.domain.CategoryLarge;
 import com.tyranno.ssg.category.domain.CategoryMiddle;
 import com.tyranno.ssg.category.domain.CategorySmall;
-import com.tyranno.ssg.category.dto.DetailCategoryDto;
-import com.tyranno.ssg.category.dto.LargeCategoryDto;
-import com.tyranno.ssg.category.dto.MiddleCategoryDto;
-import com.tyranno.ssg.category.dto.SmallCategoryDto;
+import com.tyranno.ssg.category.dto.*;
 import com.tyranno.ssg.category.infrastructure.*;
 import com.tyranno.ssg.product.domain.Product;
 import lombok.RequiredArgsConstructor;
@@ -28,73 +25,10 @@ public class CategoryServiceImp implements CategoryService{
     private final CategorySmallRepository categorySmallRepository;
     private final CategoryDetailRepository categoryDetailRepository;
 
-    @Override
-    public List<Long> getProductIdsByLargeId(Long largeId) {
-        // CategoryRepository를 사용하여 largeId를 기준으로 Product 객체들을 찾습니다.
-        List<Product> products = categoryRepository.findProductsByLargeId(largeId);
-
-        // Product 객체들의 id를 저장할 리스트를 생성합니다.
-        List<Long> productIds = new ArrayList<>();
-
-        // Product 객체들을 순회하면서 각 Product의 id를 추출하여 리스트에 추가합니다.
-        for (Product product : products) {
-            productIds.add(product.getId());
-        }
-
-        // 결과로 얻은 Product 객체들의 id 리스트를 반환합니다.
-        return productIds;
-    }
-
-    @Override
-    public List<Long> getProductIdsByMiddleId(Long middleId) {
-        // CategoryRepository를 사용하여 largeId를 기준으로 Product 객체들을 찾습니다.
-        List<Product> products = categoryRepository.findProductsByMiddleId(middleId);
-
-        // Product 객체들의 id를 저장할 리스트를 생성합니다.
-        List<Long> productIds = new ArrayList<>();
-
-        // Product 객체들을 순회하면서 각 Product의 id를 추출하여 리스트에 추가합니다.
-        for (Product product : products) {
-            productIds.add(product.getId());
-        }
-
-        // 결과로 얻은 Product 객체들의 id 리스트를 반환합니다.
-        return productIds;
-    }
-
-    @Override
-    public List<Long> getProductIdsBySmallId(Long smallId) {
-        // CategoryRepository를 사용하여 largeId를 기준으로 Product 객체들을 찾습니다.
-        List<Product> products = categoryRepository.findProductsBySmallId(smallId);
-
-        // Product 객체들의 id를 저장할 리스트를 생성합니다.
-        List<Long> productIds = new ArrayList<>();
-
-        // Product 객체들을 순회하면서 각 Product의 id를 추출하여 리스트에 추가합니다.
-        for (Product product : products) {
-            productIds.add(product.getId());
-        }
-
-        // 결과로 얻은 Product 객체들의 id 리스트를 반환합니다.
-        return productIds;
-    }
-
-    @Override
-    public List<Long> getProductIdsByDetailId(Long detailId) {
-        // CategoryRepository를 사용하여 largeId를 기준으로 Product 객체들을 찾습니다.
-        List<Product> products = categoryRepository.findProductsByDetailId(detailId);
-
-        // Product 객체들의 id를 저장할 리스트를 생성합니다.
-        List<Long> productIds = new ArrayList<>();
-
-        // Product 객체들을 순회하면서 각 Product의 id를 추출하여 리스트에 추가합니다.
-        for (Product product : products) {
-            productIds.add(product.getId());
-        }
-
-        // 결과로 얻은 Product 객체들의 id 리스트를 반환합니다.
-        return productIds;
-    }
+//    @Override
+//    public CategoryProductIdListDto getProductIdByCategory() {
+//
+//    }
 
     @Override
     public List<LargeCategoryDto> getLargeCategory(){ // largeCategory 조회

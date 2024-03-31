@@ -5,9 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
 @Getter
 public class Discount {
@@ -23,4 +21,13 @@ public class Discount {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
+
+    @Builder
+    public Discount(Long id, Integer discount, LocalDateTime discountStart, LocalDateTime discountEnd, Product product) {
+        this.id = id;
+        this.discount = discount;
+        this.discountStart = discountStart;
+        this.discountEnd = discountEnd;
+        this.product = product;
+    }
 }
